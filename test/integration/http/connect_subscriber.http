@@ -1,0 +1,18 @@
+### Connect Subscriber
+WS ws://localhost:8080/echo
+
+{
+  "message": "Connecting a new subscriber"
+}
+
+{{@streaming
+  async function writeStream(){
+    await sleep(10000);
+    $requestClient.send({
+      "event": "ping",
+      "reqid": 45
+    });
+    await sleep(1000);
+  }
+  exports.waitPromise = writeStream();
+}}
