@@ -2,7 +2,7 @@
 WS ws://localhost:8080/echo
 
 {
-  "message": "Connecting a new subscriber"
+  "data": "Connecting a new subscriber"
 }
 
 {{@streaming

@@ -1,23 +1,26 @@
 package client
 
 import (
+	"net/http"
+
 	"github.com/gorilla/websocket"
 )
 
 type Client struct {
-	Dialer *websocket.Dialer
+	Dialer Dialer
 	Conn   *websocket.Conn
 }
 
-func NewClient(conn *websocket.Dialer) *Client {
+func NewClient(d Dialer) *Client {
 	return &Client{
-		Dialer: conn,
+		Dialer: d,
 		Conn:   nil,
 	}
+
 }
 
-func (c *Client) Connect(urlStr string) error {
-	conn, _, err := c.Dialer.Dial(urlStr, nil)
+func (c *Client) Connect(urlStr string, request_headers http.Header) error {
+	conn, _, err := c.Dialer.Dial(urlStr, request_headers)
 
 	if err != nil {
 		return err

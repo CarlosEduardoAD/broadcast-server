@@ -25,5 +25,5 @@ class WSMockClient {
 
 const clients = [];
 for (let i = 0; i < 5; i++) {
-  clients.push(new WSMockClient('ws://localhost:8080/echo', `client-${i}`));
+  clients.push(new WSMockClient('ws://localhost:8080/connect', `client-${i}`));
 }
