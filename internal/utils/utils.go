@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"os/exec"
+	"syscall"
 )
 
 func BypassCheck(r *http.Request) bool {
@@ -32,4 +34,22 @@ func CheckIfFileExists(path string) (bool, error) {
 	}()
 
 	return true, nil
+}
+
+func Fork() (int, error) {
+	cmd := exec.Command(os.Args[0], os.Args[1:]...)
+	// Add env to run process as daemon
+	cmd.Env = append(os.Environ(), "IS_DAEMON=1")
+	// Optional: redirect input/outputs
+	cmd.Stdin = nil
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		// Setsid is used to detach the process from the parent (normally a shell)
+		Setsid: true,
+	}
+	if err := cmd.Start(); err != nil {
+		return 0, err
+	}
+	return cmd.Process.Pid, nil
 }

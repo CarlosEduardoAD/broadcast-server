@@ -28,20 +28,18 @@ func NewServer(port int) *Server {
 }
 
 func (srv *Server) Connect() {
-	go func() {
 
-		log.Println("server running")
+	log.Println("server running")
 
-		mux := http.NewServeMux()
-		mux.HandleFunc("/health", healthcheck.Healthcheck)
-		mux.HandleFunc("/connect", realtime.WebsocketRoute)
-		srv.s.Handler = mux
-		err := srv.s.ListenAndServe()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", healthcheck.Healthcheck)
+	mux.HandleFunc("/connect", realtime.WebsocketRoute)
+	srv.s.Handler = mux
+	err := srv.s.ListenAndServe()
 
-		if err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("HTTP server error: %v", err)
-		}
-	}()
+	if err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatalf("HTTP server error: %v", err)
+	}
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
