@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"strings"
@@ -23,9 +25,19 @@ var clientTtyCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Run a simple TTY client to send and receive messages",
 	Run: func(cmd *cobra.Command, args []string) {
-		cl := client.NewClient(&helpers.Dialer{})
 
-		if err := cl.Connect("ws://localhost:8080/connect", nil); err != nil {
+		basicAuth := cmd.Flags().Lookup("basicAuth")
+
+		if basicAuth == nil {
+			log.Println("basicAuth flag is required")
+			os.Exit(1)
+		}
+
+		basicAuthStr := basicAuth.Value.String()
+
+		cl := client.NewClient(&helpers.Dialer{})
+		headers := http.Header{"Origin": {"http://localhost:8080"}, "Authorization": {"Basic " + base64.StdEncoding.EncodeToString([]byte(basicAuthStr))}}
+		if err := cl.Connect("ws://localhost:8080/connect", headers); err != nil {
 			log.Fatal("erro ao conectar:", err)
 		}
 		defer cl.Close()
@@ -107,4 +119,6 @@ var clientTtyCmd = &cobra.Command{
 
 func init() {
 	clientCmd.AddCommand(clientTtyCmd)
+
+	rootCmd.Flags().String("basicAuth", "", "basic auth credentials")
 }

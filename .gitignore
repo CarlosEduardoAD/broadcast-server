@@ -2,3 +2,4 @@
 /test/package-lock.json
 
 broadcast-server.pid
+.env

@@ -17,7 +17,7 @@ import (
 
 var (
 	upgrader = websocket.Upgrader{
-		CheckOrigin: utils.BypassCheck,
+		CheckOrigin: utils.Authorize,
 	}
 
 	publisher = pub.NewPublisher([]sub.Subscriber{})

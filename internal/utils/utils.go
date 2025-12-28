@@ -1,16 +1,88 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
+
+	"github.com/joho/godotenv"
+)
+
+const (
+	ALLOWED_ORIGIN = "http://localhost:8080"
 )
 
 func BypassCheck(r *http.Request) bool {
+	return true
+}
+
+func Authorize(r *http.Request) bool {
+	org := CheckOrigin(r)
+	if !org {
+		return false
+	}
+
+	auth := CheckAuthorization(r)
+
+	if !auth {
+		return false
+	}
+
+	return true
+}
+
+func CheckAuthorization(r *http.Request) bool {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	authHeader := r.Header.Get("Authorization")
+
+	if authHeader == "" {
+		return false
+	}
+
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || parts[0] != "Basic" {
+		return false
+	}
+
+	encodedCredentials := parts[1]
+	decodedBytes, err := base64.StdEncoding.DecodeString(encodedCredentials)
+	if err != nil {
+		return false
+	}
+
+	credentials := string(decodedBytes)
+	expectedCredentials := os.Getenv("BASIC_AUTH_CREDENTIALS")
+	if credentials != expectedCredentials {
+		return false
+	}
+
+	return true
+}
+
+func CheckOrigin(r *http.Request) bool {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	allowed := os.Getenv("ALLOWED_ORIGIN")
+
+	origin := r.Header.Get("Origin")
+
+	if origin != allowed {
+		return false
+	}
+
 	return true
 }
 
