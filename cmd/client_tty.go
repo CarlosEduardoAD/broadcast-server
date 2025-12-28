@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/signal"
 	"strings"
+	"sync"
 	"syscall"
 
 	"github.com/CarlosEduardoAD/broadcast-server/internal/helpers"
@@ -18,7 +20,7 @@ import (
 
 // clientTtyCmd runs a simple TTY-style client that can send and receive messages
 var clientTtyCmd = &cobra.Command{
-	Use:   "tty",
+	Use:   "join",
 	Short: "Run a simple TTY client to send and receive messages",
 	Run: func(cmd *cobra.Command, args []string) {
 		cl := client.NewClient(&helpers.Dialer{})
@@ -29,6 +31,13 @@ var clientTtyCmd = &cobra.Command{
 		defer cl.Close()
 
 		done := make(chan struct{})
+		var closeOnce sync.Once
+		closeDone := func() {
+			closeOnce.Do(func() {
+				close(done)
+				os.Exit(0)
+			})
+		}
 
 		go func() {
 			for {
@@ -37,11 +46,18 @@ var clientTtyCmd = &cobra.Command{
 
 				_, msg, err := cl.Conn.ReadMessage()
 				if err != nil {
-					log.Println("erro ao ler mensagem:", err)
-					close(done)
+
+					isNet := err == io.EOF
+
+					if !isNet {
+						log.Println("erro ao ler mensagem:", err)
+						closeDone()
+						return
+					}
+
+					closeDone()
 					return
 				}
-				fmt.Println()
 
 				err = json.Unmarshal(msg, &msgDeserialized)
 
@@ -59,7 +75,7 @@ var clientTtyCmd = &cobra.Command{
 		go func() {
 			<-sigc
 			cl.Close()
-			close(done)
+			closeDone()
 		}()
 
 		reader := bufio.NewReader(os.Stdin)

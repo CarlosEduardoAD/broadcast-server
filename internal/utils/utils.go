@@ -51,5 +51,8 @@ func Fork() (int, error) {
 	if err := cmd.Start(); err != nil {
 		return 0, err
 	}
+
+	os.WriteFile("broadcast-server.pid", []byte(fmt.Sprint(cmd.Process.Pid)), 0644)
+
 	return cmd.Process.Pid, nil
 }

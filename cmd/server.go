@@ -5,7 +5,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
+	"strconv"
 
 	"github.com/CarlosEduardoAD/broadcast-server/internal/server"
 	"github.com/CarlosEduardoAD/broadcast-server/internal/utils"
@@ -26,20 +29,72 @@ var serverCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		switch args[0] {
 		case "start":
+
+			cUser, err := os.UserHomeDir()
+
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			filePath, err := filepath.Abs(cUser + "/projects/broadcast-server/broadcast-server.pid")
+			pidFile, err := os.Open(filePath)
+
+			if err != nil {
+				ok := os.IsNotExist(err)
+
+				if !ok {
+					panic(err)
+				}
+			}
+
 			if os.Getenv("IS_DAEMON") != "1" {
+
+				if pidFile != nil {
+					os.Exit(0)
+				}
+
 				pid, err := utils.Fork()
 				if err != nil {
 					fmt.Printf("Unable to fork process")
 					os.Exit(1)
 				}
+
 				fmt.Printf("Start child - pid = %d\n", pid)
+				log.Println("Starting server...")
 				os.Exit(0) // parent must exit after spawning child
 			}
 
 			srv.Connect()
 		case "stop":
-			fmt.Println("Stopping server...")
-			srv.Disconnect()
+			cUser, err := os.UserHomeDir()
+
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Println(cUser)
+
+			filePath, err := filepath.Abs(cUser + "/projects/broadcast-server/broadcast-server.pid")
+			pidFile, err := os.ReadFile(filePath)
+
+			pdrInt, err := strconv.Atoi(string(pidFile))
+
+			if err != nil {
+				panic(err)
+			}
+
+			process, err := os.FindProcess(pdrInt)
+			if err != nil {
+				log.Fatalf("failed to find process: %v", err)
+			}
+
+			err = process.Kill()
+			if err != nil {
+				log.Fatalf("failed to kill process with pid %s: %v", pdrInt, err)
+			}
+			os.Remove(filePath)
+
+			fmt.Printf("Server with pid %s stopped successfully\n", pdrInt)
+
 		default:
 			fmt.Println("Unknown subcommand. Use 'start' or 'stop'.")
 		}

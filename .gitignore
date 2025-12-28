@@ -1,2 +1,4 @@
 /test/load/node_modules
 /test/package-lock.json
+
+broadcast-server.pid
