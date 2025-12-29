@@ -42,6 +42,29 @@ Flags:
   -t, --toggle             Help message for toggle
 ```
 
+## Quickstart
+
+Start your server
+
+```bash
+./broadcast-server server start
+```
+
+Spawn 2 or more terminals, run the command below and begin to send messages!
+
+```bash
+./broadcast-server client join
+```
+
+## .env
+
+To change the basic auth password and the allowed origin, head up to these 2 variables.
+
+```bash
+ALLOWED_ORIGIN=http://your-host:your-port/ 
+BASIC_AUTH_CREDENTIALS=you:yourpassword123
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
