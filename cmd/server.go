@@ -89,11 +89,11 @@ var serverCmd = &cobra.Command{
 
 			err = process.Kill()
 			if err != nil {
-				log.Fatalf("failed to kill process with pid %s: %v", pdrInt, err)
+				log.Fatalf("failed to kill process with pid %d: %v", pdrInt, err)
 			}
 			os.Remove(filePath)
 
-			fmt.Printf("Server with pid %s stopped successfully\n", pdrInt)
+			fmt.Printf("Server with pid %d stopped successfully\n", pdrInt)
 
 		default:
 			fmt.Println("Unknown subcommand. Use 'start' or 'stop'.")
