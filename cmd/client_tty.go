@@ -20,7 +20,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// clientTtyCmd runs a simple TTY-style client that can send and receive messages
 var clientTtyCmd = &cobra.Command{
 	Use:   "join",
 	Short: "Run a simple TTY client to send and receive messages",
@@ -119,6 +118,4 @@ var clientTtyCmd = &cobra.Command{
 
 func init() {
 	clientCmd.AddCommand(clientTtyCmd)
-
-	rootCmd.Flags().String("basicAuth", "", "basic auth credentials")
 }

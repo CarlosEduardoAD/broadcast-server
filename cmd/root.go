@@ -30,7 +30,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "broadcast-server",
 	Short: "A toy app to represent a simulated realtime chat in your terminal!",
-	Long:  `Use your .`,
+	Long:  `A toy app to represent a simulated realtime chat in your terminal!`,
 }
 
 func Execute() {
@@ -42,5 +42,5 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.PersistentFlags().String("basicAuth", "", "Authenticate connection with basic auth")
+	rootCmd.PersistentFlags().StringP("basicAuth", "a", "", "Authenticate connection with basic auth")
 }

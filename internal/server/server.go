@@ -28,9 +28,6 @@ func NewServer(port int) *Server {
 }
 
 func (srv *Server) Connect() {
-
-	log.Println("server running")
-
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthcheck.Healthcheck)
 	mux.HandleFunc("/connect", realtime.WebsocketRoute)
